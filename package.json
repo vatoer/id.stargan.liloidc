@@ -1,0 +1,22 @@
+{
+  "name": "id.stargan.liloidc",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "engines": {
+    "node": ">=24"
+  },
+  "type": "module",
+  "dependencies": {
+    "@koa/router": "^15.4.0",
+    "koa": "^3.2.0",
+    "koa-body": "^7.0.1",
+    "oidc-provider": "^9.8.0"
+  }
+}

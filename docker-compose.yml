@@ -1,0 +1,7 @@
+services:
+  liloidc:
+    build: .
+    ports:
+      - "${PORT:-9876}:${PORT:-9876}"
+    env_file: .env
+    restart: unless-stopped

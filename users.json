@@ -1,0 +1,100 @@
+[
+  {
+    "username": "alice",
+    "password": "alice",
+    "email": "alice@stargan.id",
+    "name": "Alice Example",
+    "role": "employee"
+  },
+  {
+    "username": "bob",
+    "password": "bob",
+    "email": "bob@stargan.id",
+    "name": "Bob Example",
+    "role": "employee"
+  },
+  {
+    "username": "admin@stargan.id",
+    "password": "PlfAdmin1234!",
+    "email": "admin@stargan.id",
+    "name": "StarGAN Super Admin",
+    "role": "admin"
+  },
+  {
+    "username": "orgadmin@stargan.id",
+    "password": "OrgAdmin1234!",
+    "email": "orgadmin@stargan.id",
+    "name": "StarGAN HQ Org Admin",
+    "role": "orgadmin"
+  },
+  {
+    "username": "employee@stargan.id",
+    "password": "Employee1234!",
+    "email": "employee@stargan.id",
+    "name": "StarGAN HQ Employee",
+    "role": "employee"
+  },
+  {
+    "username": "orgadmin.jkt@stargan.id",
+    "password": "OrgAdmin1234!",
+    "email": "orgadmin.jkt@stargan.id",
+    "name": "StarGAN Jakarta Org Admin",
+    "role": "orgadmin"
+  },
+  {
+    "username": "budi.jkt@stargan.id",
+    "password": "Employee1234!",
+    "email": "budi.jkt@stargan.id",
+    "name": "Budi Jakarta",
+    "role": "employee"
+  },
+  {
+    "username": "sari.jkt@stargan.id",
+    "password": "Employee1234!",
+    "email": "sari.jkt@stargan.id",
+    "name": "Sari Jakarta",
+    "role": "employee"
+  },
+  {
+    "username": "orgadmin.sby@stargan.id",
+    "password": "OrgAdmin1234!",
+    "email": "orgadmin.sby@stargan.id",
+    "name": "StarGAN Surabaya Org Admin",
+    "role": "orgadmin"
+  },
+  {
+    "username": "eko.sby@stargan.id",
+    "password": "Employee1234!",
+    "email": "eko.sby@stargan.id",
+    "name": "Eko Surabaya",
+    "role": "employee"
+  },
+  {
+    "username": "dewi.sby@stargan.id",
+    "password": "Employee1234!",
+    "email": "dewi.sby@stargan.id",
+    "name": "Dewi Surabaya",
+    "role": "employee"
+  },
+  {
+    "username": "orgadmin.bdg@stargan.id",
+    "password": "OrgAdmin1234!",
+    "email": "orgadmin.bdg@stargan.id",
+    "name": "StarGAN Bandung Org Admin",
+    "role": "orgadmin"
+  },
+  {
+    "username": "rudi.bdg@stargan.id",
+    "password": "Employee1234!",
+    "email": "rudi.bdg@stargan.id",
+    "name": "Rudi Bandung",
+    "role": "employee"
+  },
+  {
+    "username": "nina.bdg@stargan.id",
+    "password": "Employee1234!",
+    "email": "nina.bdg@stargan.id",
+    "name": "Nina Bandung",
+    "role": "employee"
+  }
+]

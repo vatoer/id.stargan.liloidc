@@ -1,0 +1,66 @@
+name: Deploy LiloIDC
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  DEPLOY_PATH: /home/submin/www/demoid
+
+jobs:
+  deploy:
+    name: Deploy to VPS
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install production dependencies
+        run: npm ci --omit=dev
+
+      - name: Deploy via rsync
+        uses: burnett01/rsync-deployments@7.0.1
+        with:
+          switches: -avz --delete --exclude='.env' --exclude='.git'
+          path: ./
+          remote_path: ${{ env.DEPLOY_PATH }}/
+          remote_host: ${{ secrets.VPS_HOST }}
+          remote_user: ${{ secrets.VPS_USER }}
+          remote_key: ${{ secrets.VPS_SSH_KEY }}
+
+      - name: Restart application
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            cd ${{ env.DEPLOY_PATH }}
+            pm2 restart ecosystem.config.cjs --env production || pm2 start ecosystem.config.cjs --env production
+            pm2 save
+
+  healthcheck:
+    name: Verify deployment
+    needs: deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Wait for restart
+        run: sleep 5
+
+      - name: Check OIDC discovery endpoint
+        run: |
+          STATUS=$(curl -sf -o /dev/null -w '%{http_code}' https://demoid.stargan.id/.well-known/openid-configuration)
+          if [ "$STATUS" != "200" ]; then
+            echo "Healthcheck failed: HTTP $STATUS"
+            exit 1
+          fi
+          echo "Healthcheck passed: HTTP $STATUS"
