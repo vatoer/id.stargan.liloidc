@@ -4,97 +4,151 @@
     "password": "alice",
     "email": "alice@stargan.id",
     "name": "Alice Example",
-    "role": "employee"
+    "role": "employee",
+    "nip": "198001010000000001"
   },
   {
     "username": "bob",
     "password": "bob",
     "email": "bob@stargan.id",
     "name": "Bob Example",
-    "role": "employee"
+    "role": "employee",
+    "nip": "198001010000000002"
   },
   {
     "username": "admin@stargan.id",
     "password": "PlfAdmin1234!",
     "email": "admin@stargan.id",
     "name": "StarGAN Super Admin",
-    "role": "admin"
+    "role": "admin",
+    "nip": "199001010000000001"
   },
   {
     "username": "orgadmin@stargan.id",
     "password": "OrgAdmin1234!",
     "email": "orgadmin@stargan.id",
     "name": "StarGAN HQ Org Admin",
-    "role": "orgadmin"
+    "role": "orgadmin",
+    "nip": "199001010000000002"
   },
   {
     "username": "employee@stargan.id",
     "password": "Employee1234!",
     "email": "employee@stargan.id",
     "name": "StarGAN HQ Employee",
-    "role": "employee"
+    "role": "employee",
+    "nip": "199001010000000003"
   },
   {
     "username": "orgadmin.jkt@stargan.id",
     "password": "OrgAdmin1234!",
     "email": "orgadmin.jkt@stargan.id",
     "name": "StarGAN Jakarta Org Admin",
-    "role": "orgadmin"
+    "role": "orgadmin",
+    "nip": "199001010000000004"
   },
   {
     "username": "budi.jkt@stargan.id",
     "password": "Employee1234!",
     "email": "budi.jkt@stargan.id",
     "name": "Budi Jakarta",
-    "role": "employee"
+    "role": "employee",
+    "nip": "199001010000000005"
   },
   {
     "username": "sari.jkt@stargan.id",
     "password": "Employee1234!",
     "email": "sari.jkt@stargan.id",
     "name": "Sari Jakarta",
-    "role": "employee"
+    "role": "employee",
+    "nip": "199001010000000006"
   },
   {
     "username": "orgadmin.sby@stargan.id",
     "password": "OrgAdmin1234!",
     "email": "orgadmin.sby@stargan.id",
     "name": "StarGAN Surabaya Org Admin",
-    "role": "orgadmin"
+    "role": "orgadmin",
+    "nip": "199001010000000007"
   },
   {
     "username": "eko.sby@stargan.id",
     "password": "Employee1234!",
     "email": "eko.sby@stargan.id",
     "name": "Eko Surabaya",
-    "role": "employee"
+    "role": "employee",
+    "nip": "199001010000000008"
   },
   {
     "username": "dewi.sby@stargan.id",
     "password": "Employee1234!",
     "email": "dewi.sby@stargan.id",
     "name": "Dewi Surabaya",
-    "role": "employee"
+    "role": "employee",
+    "nip": "199001010000000009"
   },
   {
     "username": "orgadmin.bdg@stargan.id",
     "password": "OrgAdmin1234!",
     "email": "orgadmin.bdg@stargan.id",
     "name": "StarGAN Bandung Org Admin",
-    "role": "orgadmin"
+    "role": "orgadmin",
+    "nip": "199001010000000010"
   },
   {
     "username": "rudi.bdg@stargan.id",
     "password": "Employee1234!",
     "email": "rudi.bdg@stargan.id",
     "name": "Rudi Bandung",
-    "role": "employee"
+    "role": "employee",
+    "nip": "199001010000000011"
   },
   {
     "username": "nina.bdg@stargan.id",
     "password": "Employee1234!",
     "email": "nina.bdg@stargan.id",
     "name": "Nina Bandung",
-    "role": "employee"
+    "role": "employee",
+    "nip": "199001010000000012"
+  },
+  {
+    "username": "dokter.kartini@stargan.id",
+    "password": "Employee1234!",
+    "email": "dokter.kartini@stargan.id",
+    "name": "kartinidok",
+    "role": "employee",
+    "nip": "199001010000000013"
+  },
+  {
+    "username": "perawat.asih@stargan.id",
+    "password": "Employee1234!",
+    "email": "perawat.asih@stargan.id",
+    "name": "perawatasih",
+    "role": "employee",
+    "nip": "199001010000000014"
+  },
+  {
+    "username": "budireg@stargan.id",
+    "password": "Employee1234!",
+    "email": "budireg@stargan.id",
+    "name": "budireg",
+    "role": "employee",
+    "nip": "199001010000000015"
+  },
+  {
+    "username": "apotika@stargan.id",
+    "password": "Employee1234!",
+    "email": "apotika@stargan.id",
+    "name": "apotika",
+    "role": "employee",
+    "nip": "199001010000000016"
+  },
+  {
+    "username": "elabora@stargan.id",
+    "password": "Employee1234!",
+    "email": "elabora@stargan.id",
+    "name": "elabora",
+    "role": "employee",
+    "nip": "199001010000000017"
   }
 ]

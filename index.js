@@ -32,6 +32,10 @@ function findAccount(ctx, id) {
         claims.preferred_username = user.username;
         claims.role = user.role;
       }
+      if (scope.includes('employee')) {
+        claims.nip = user.nip;
+      }
+      console.log(`[liloidc] claims(use=${use}, scope="${scope}") =>`, JSON.stringify(claims));
       return claims;
     },
   };
@@ -58,10 +62,19 @@ const provider = new Provider(ISSUER, {
     openid: ['sub'],
     email: ['email', 'email_verified'],
     profile: ['name', 'preferred_username', 'role'],
+    employee: ['nip'],
   },
   conformIdTokenClaims: false,
   features: {
     devInteractions: { enabled: false },
+  },
+  logoutSource(ctx, form) {
+    ctx.type = 'html';
+    ctx.body = logoutPage(form);
+  },
+  postLogoutSuccessSource(ctx) {
+    ctx.type = 'html';
+    ctx.body = logoutSuccessPage();
   },
   pkce: {
     required: () => false,
@@ -259,6 +272,118 @@ function loginPage(uid, error) {
     <div class="footer">
       <a href="/interaction/${uid}/abort">Cancel</a>
     </div>
+  </div>
+</body>
+</html>`;
+}
+
+function logoutPage(form) {
+  return `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LiloIDC - Sign Out</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f0f2f5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+      padding: 40px;
+      width: 360px;
+      text-align: center;
+    }
+    .card h1 { font-size: 20px; font-weight: 600; margin-bottom: 4px; color: #111; }
+    .card p { font-size: 14px; color: #555; margin: 16px 0 24px; }
+    .actions { display: flex; gap: 10px; }
+    button[value="yes"] {
+      flex: 1;
+      padding: 10px;
+      background: #e53935;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    button[value="yes"]:hover { background: #c62828; }
+    button[value=""] {
+      flex: 1;
+      padding: 10px;
+      background: #f0f2f5;
+      color: #333;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    button[value=""]:hover { background: #e0e2e5; }
+    .footer { margin-top: 20px; font-size: 11px; color: #aaa; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>LiloIDC</h1>
+    <p>Apakah Anda yakin ingin keluar dari semua sesi?</p>
+    ${form}
+    <div class="actions">
+      <button autofocus type="submit" value="yes" name="logout">Ya, Keluar</button>
+      <button type="submit" value="" name="logout">Batal</button>
+    </div>
+    <div class="footer">Superlite OIDC Identity Provider</div>
+  </div>
+</body>
+</html>`;
+}
+
+function logoutSuccessPage() {
+  return `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LiloIDC - Signed Out</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f0f2f5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+      padding: 40px;
+      width: 360px;
+      text-align: center;
+    }
+    .card h1 { font-size: 20px; font-weight: 600; margin-bottom: 4px; color: #111; }
+    .card p { font-size: 14px; color: #555; margin: 16px 0 0; }
+    .footer { margin-top: 20px; font-size: 11px; color: #aaa; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>LiloIDC</h1>
+    <p>Anda telah berhasil keluar.</p>
+    <div class="footer">Superlite OIDC Identity Provider</div>
   </div>
 </body>
 </html>`;
