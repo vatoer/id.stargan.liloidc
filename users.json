@@ -150,5 +150,69 @@
     "name": "elabora",
     "role": "employee",
     "nip": "199001010000000017"
+  },
+  {
+    "username": "sitidrg@stargan.id",
+    "password": "Employee1234!",
+    "email": "sitidrg@stargan.id",
+    "name": "sitidrg",
+    "role": "employee",
+    "nip": "199001010000000018"
+  },
+  {
+    "username": "drgigi@stargan.id",
+    "password": "Employee1234!",
+    "email": "drgigi@stargan.id",
+    "name": "drgigi",
+    "role": "employee",
+    "nip": "199001010000000019"
+  },
+  {
+    "username": "andi.par",
+    "password": "Employee1234!",
+    "email": "andi.par@kemenpar.go.id",
+    "name": "Andi Pariwisata",
+    "role": "employee",
+    "nip": "199001010000000020"
+  },
+  {
+    "username": "sari.par",
+    "password": "Employee1234!",
+    "email": "sari.par@kemenpar.go.id",
+    "name": "Sari Pariwisata",
+    "role": "employee",
+    "nip": "199001010000000021"
+  },
+  {
+    "username": "budi.par",
+    "password": "Employee1234!",
+    "email": "budi.par@kemenpar.go.id",
+    "name": "Budi Pariwisata",
+    "role": "employee",
+    "nip": "199001010000000022"
+  },
+  {
+    "username": "eko.han",
+    "password": "Employee1234!",
+    "email": "eko.han@kemhan.go.id",
+    "name": "Eko Pertahanan",
+    "role": "employee",
+    "nip": "199001010000000023"
+  },
+  {
+    "username": "dewi.han",
+    "password": "Employee1234!",
+    "email": "dewi.han@kemhan.go.id",
+    "name": "Dewi Pertahanan",
+    "role": "employee",
+    "nip": "199001010000000024"
+  },
+  {
+    "username": "rudi.han",
+    "password": "Employee1234!",
+    "email": "rudi.han@kemhan.go.id",
+    "name": "Rudi Pertahanan",
+    "role": "employee",
+    "nip": "199001010000000025"
   }
 ]

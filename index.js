@@ -11,13 +11,91 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const PORT = process.env.PORT || 9876;
 const ISSUER = process.env.ISSUER || `http://localhost:${PORT}`;
 
-// Load config
-const users = JSON.parse(readFileSync(join(__dirname, 'users.json'), 'utf8'));
-const clients = JSON.parse(readFileSync(join(__dirname, 'clients.json'), 'utf8'));
+function loadUsers() {
+  return JSON.parse(readFileSync(join(__dirname, 'users.json'), 'utf8'));
+}
 
-// Account model
+function loadClients() {
+  return JSON.parse(readFileSync(join(__dirname, 'clients.json'), 'utf8'));
+}
+
+function formatClient(c) {
+  return {
+    client_id: c.client_id,
+    client_secret: c.client_secret,
+    application_type: c.application_type || 'web',
+    redirect_uris: c.redirect_uris,
+    grant_types: c.grant_types || ['authorization_code'],
+    response_types: c.response_types || ['code'],
+    scope: c.scope || 'openid email profile',
+    token_endpoint_auth_method: c.token_endpoint_auth_method || 'client_secret_basic',
+    post_logout_redirect_uris: c.post_logout_redirect_uris || [],
+  };
+}
+
+// In-memory store for all non-Client models
+const stores = new Map();
+function getStore(name) {
+  if (!stores.has(name)) stores.set(name, new Map());
+  return stores.get(name);
+}
+
+// Custom adapter: Client reads from clients.json on every lookup; others use in-memory Maps
+function adapterFactory(modelName) {
+  if (modelName === 'Client') {
+    return {
+      async find(id) {
+        try {
+          const client = loadClients().find((c) => c.client_id === id);
+          return client ? formatClient(client) : undefined;
+        } catch { return undefined; }
+      },
+      async upsert() {},
+      async destroy() {},
+      async consume() {},
+      async revokeByGrantId() {},
+      async findByUserCode() {},
+      async findByUid() {},
+    };
+  }
+
+  const store = getStore(modelName);
+  return {
+    async upsert(id, payload, expiresIn) {
+      store.set(id, { payload, expiresAt: expiresIn ? Date.now() + expiresIn * 1000 : undefined });
+    },
+    async find(id) {
+      const entry = store.get(id);
+      if (!entry) return undefined;
+      if (entry.expiresAt && Date.now() > entry.expiresAt) { store.delete(id); return undefined; }
+      return entry.payload;
+    },
+    async findByUserCode(userCode) {
+      for (const { payload } of store.values()) {
+        if (payload.userCode === userCode) return payload;
+      }
+    },
+    async findByUid(uid) {
+      for (const { payload } of store.values()) {
+        if (payload.uid === uid) return payload;
+      }
+    },
+    async consume(id) {
+      const entry = store.get(id);
+      if (entry) entry.payload.consumed = Math.floor(Date.now() / 1000);
+    },
+    async destroy(id) { store.delete(id); },
+    async revokeByGrantId(grantId) {
+      for (const [id, { payload }] of store) {
+        if (payload.grantId === grantId) store.delete(id);
+      }
+    },
+  };
+}
+
+// Account model — reads users.json fresh on every call
 function findAccount(ctx, id) {
-  const user = users.find((u) => u.username === id);
+  const user = loadUsers().find((u) => u.username === id);
   if (!user) return undefined;
   return {
     accountId: id,
@@ -46,17 +124,7 @@ const provider = new Provider(ISSUER, {
   // Trust nginx reverse proxy (X-Forwarded-* headers)
   ...(process.env.NODE_ENV === 'production' && { proxy: true }),
 
-  clients: clients.map((c) => ({
-    client_id: c.client_id,
-    client_secret: c.client_secret,
-    application_type: c.application_type || 'web',
-    redirect_uris: c.redirect_uris,
-    grant_types: c.grant_types || ['authorization_code'],
-    response_types: c.response_types || ['code'],
-    scope: c.scope || 'openid email profile',
-    token_endpoint_auth_method: c.token_endpoint_auth_method || 'client_secret_basic',
-    post_logout_redirect_uris: c.post_logout_redirect_uris || [],
-  })),
+  adapter: adapterFactory,
   findAccount,
   claims: {
     openid: ['sub'],
@@ -132,7 +200,7 @@ router.get('/interaction/:uid', async (ctx) => {
 // Login submit
 router.post('/interaction/:uid/login', koaBody(), async (ctx) => {
   const { username, password } = ctx.request.body;
-  const user = users.find((u) => u.username === username && u.password === password);
+  const user = loadUsers().find((u) => u.username === username && u.password === password);
 
   if (!user) {
     ctx.type = 'html';
@@ -169,8 +237,8 @@ const server = createServer(provider.callback());
 server.listen(PORT, () => {
   console.log(`\n  LiloIDC running on ${ISSUER}\n`);
   console.log(`  Discovery: ${ISSUER}/.well-known/openid-configuration`);
-  console.log(`  Users:     ${users.map((u) => u.username).join(', ')}`);
-  console.log(`  Clients:   ${clients.map((c) => c.client_id).join(', ')}\n`);
+  console.log(`  Users:     ${loadUsers().map((u) => u.username).join(', ')}`);
+  console.log(`  Clients:   ${loadClients().map((c) => c.client_id).join(', ')}\n`);
 });
 
 // HTML login page

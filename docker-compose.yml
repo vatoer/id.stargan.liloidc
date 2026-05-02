@@ -5,3 +5,6 @@ services:
       - "${PORT:-9876}:${PORT:-9876}"
     env_file: .env
     restart: unless-stopped
+    volumes:
+      - ./clients.json:/app/clients.json:ro
+      - ./users.json:/app/users.json:ro
