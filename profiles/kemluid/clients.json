@@ -5,16 +5,16 @@
     "redirect_uris": ["http://localhost:3000/api/auth/callback/kemluid"],
     "grant_types": ["authorization_code", "refresh_token"],
     "response_types": ["code"],
-    "scope": "openid profile email nip roles uuid jabatan offline_access",
+    "scope": "openid profile email nip roles uuid jabatan satker offline_access",
     "resource_scope": "api:tte"
   },
   {
     "client_id": "superapp",
     "application_type": "native",
     "token_endpoint_auth_method": "none",
-    "redirect_uris": ["https://app.example/tte/callback", "id.example.superapp:/callback"],
+    "redirect_uris": ["https://app.example/tte/callback", "id.example.superapp:/callback", "http://127.0.0.1:8765/callback"],
     "grant_types": ["authorization_code", "refresh_token"],
     "response_types": ["code"],
-    "scope": "openid profile email nip roles uuid offline_access api:tte"
+    "scope": "openid profile email nip roles uuid satker offline_access api:tte"
   }
 ]

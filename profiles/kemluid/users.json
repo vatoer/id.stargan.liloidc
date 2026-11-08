@@ -5,8 +5,11 @@
     "email": "rina.pratiwi@idp.test",
     "name": "Rina Pratiwi",
     "nip": "199203152015032001",
-    "roles": ["Pegawai"],
-    "uuid": "6f1c2a9e-3b7d-4c55-9a1e-0d2f8b7c4e11"
+    "roles": [
+      "Pegawai"
+    ],
+    "uuid": "6f1c2a9e-3b7d-4c55-9a1e-0d2f8b7c4e11",
+    "satker": "Satuan Kerja Uji A"
   },
   {
     "username": "signer",
@@ -14,7 +17,9 @@
     "email": "signer@tte.test",
     "name": "Signer Uji",
     "nip": "198805102012121001",
-    "roles": ["Pegawai"],
+    "roles": [
+      "Pegawai"
+    ],
     "uuid": "2c8e4f60-91ab-4d2e-b6f3-7a5c1e9d0b22"
   },
   {
@@ -24,7 +29,9 @@
     "email_verified": false,
     "name": "Email Belum Terverifikasi",
     "nip": "199001012014011001",
-    "roles": ["Pegawai"],
+    "roles": [
+      "Pegawai"
+    ],
     "uuid": "9a3d7b21-5e4f-4c88-a0b9-3f6e2d1c8a33"
   },
   {
@@ -33,8 +40,12 @@
     "email": "budi.santoso@idp.test",
     "name": "Budi Santoso",
     "nip": "198511202010011002",
-    "roles": ["Pegawai", "Pejabat"],
+    "roles": [
+      "Pegawai",
+      "Pejabat"
+    ],
     "uuid": "d4b6e8f0-2a1c-4e3d-8f7a-6b5c4d3e2f44",
-    "jabatan": "Kepala Subbagian Uji"
+    "jabatan": "Kepala Subbagian Uji",
+    "satker": "Satuan Kerja Uji B"
   }
 ]

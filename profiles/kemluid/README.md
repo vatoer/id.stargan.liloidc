@@ -37,10 +37,10 @@ MOBILE_KEMLUID_ALLOWED_CLIENTS=superapp
 
 | Perilaku KemluID (tte-web `docs/oidc-kemluid.md`) | Profil `kemluid` |
 |---|---|
-| Endpoint OpenIddict `/connect/*` | `/connect/authorize`, `/connect/token`, `/connect/userinfo`, `/connect/introspect`, `/connect/revoke`, `/.well-known/jwks` |
+| Endpoint OpenIddict `/connect/*` (path dicocokkan dengan discovery asli 2026-11-08) | `/connect/authorize`, `/connect/token`, `/connect/userinfo`, `/connect/introspect`, `/connect/revocation`, `/.well-known/jwks.json` |
 | Tidak ada `end_session_endpoint` | logout RP dimatikan |
 | `authorization_code` + PKCE `S256`, id_token RS256 | PKCE wajib, hanya S256 |
-| Scope `openid profile email nip roles uuid jabatan offline_access` | sama; `nip`, `roles`, `uuid`, `jabatan` hanya lewat **userinfo** (id_token hanya klaim standar) |
+| Scope `openid profile email nip roles uuid jabatan satker addressbook:read offline_access` (discovery asli) | sama; `nip`, `roles`, `uuid`, `jabatan`, `satker` hanya lewat **userinfo** (id_token hanya klaim standar). Nama klaim `satker` masih **asumsi**; `addressbook:read` tanpa klaim |
 | `jabatan` per 2026-10-13 tidak dikirim | hanya dikirim bila diisi di `users.json` |
 | W1: client publik SuperApp, PKCE, App Link | client `superapp` (`token_endpoint_auth_method: none`) |
 | W2: scope `api:tte` → `aud` = `client_id` tte-web; boleh diintrospeksi tte-web | client ber-`resource_scope` = resource server; token SuperApp ber-`aud: tte-web`, scope `api:tte` |
@@ -61,7 +61,7 @@ MOBILE_KEMLUID_ALLOWED_CLIENTS=superapp
 | `budi.santoso` | `budi.santoso@idp.test` | klaim `jabatan` dan beberapa `roles` |
 
 `clients.json`: `tte-web` (confidential, redirect `http://localhost:3000/api/auth/callback/kemluid`,
-`resource_scope: api:tte`) dan `superapp` (publik, redirect `https://app.example/tte/callback`).
+`resource_scope: api:tte`) dan `superapp` (publik; redirect App Link `https://app.example/tte/callback`, skema iOS `id.example.superapp:/callback`, dan loopback `http://127.0.0.1:8765/callback` untuk alat uji seperti tte-web `scripts/kemluid-probe.mjs`).
 
 ## Hasil uji 2026-11-08 (tte-web `main` + profil ini)
 
@@ -85,3 +85,8 @@ MOBILE_KEMLUID_ALLOWED_CLIENTS=superapp
 - Menambah client ber-`resource_scope` baru butuh restart; perubahan client lain tetap hot-reload.
 - Bentuk klaim `roles` di KemluID asli belum terkonfirmasi; di sini array string. tte-web
   menormalkan keduanya (`normalizeIdpRoles`).
+- Nama dan bentuk klaim scope `satker` belum terkonfirmasi.
+- `grant_types_supported` KemluID memuat `client_credentials`; profil ini belum menirunya.
+- Yang sudah dipastikan dari discovery asli dan yang masih dugaan dicatat di
+  tte-web `docs/oidc-kemluid.md`. Alat untuk memastikan sisanya: tte-web
+  `scripts/kemluid-probe.mjs`.

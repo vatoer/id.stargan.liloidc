@@ -3,11 +3,12 @@
 //
 // Aktif dengan LILO_PROFILE=kemluid. Profil bawaan (stargan) tidak berubah sama sekali.
 //
-// Yang ditiru (sumber: tte-web/docs/oidc-kemluid.md):
+// Yang ditiru (sumber: tte-web/docs/oidc-kemluid.md, dan discovery KemluID asli yang dibaca
+// 2026-11-08 untuk path endpoint serta daftar scope):
 // - endpoint OpenIddict /connect/* ; tanpa end_session_endpoint;
 // - authorization_code + PKCE S256 wajib; id_token RS256;
-// - scope openid profile email nip roles uuid jabatan offline_access; nip/roles/uuid/jabatan
-//   hanya lewat userinfo (claims_supported KemluID tidak memuatnya);
+// - scope openid profile email nip roles uuid jabatan satker addressbook:read offline_access;
+//   klaim tambahan hanya lewat userinfo (claims_supported KemluID tidak memuatnya);
 // - W2: scope resource `api:<modul>` → access token ber-`aud` = client_id backend modul, bisa
 //   diintrospeksi (RFC 7662) oleh backend itu dan TETAP bisa dipakai di userinfo — seperti
 //   OpenIddict, tidak seperti oidc-provider bawaan yang menolak token ber-audience di userinfo;
@@ -30,9 +31,14 @@ export const claims = {
   roles: ['roles'],
   uuid: ['uuid'],
   jabatan: ['jabatan'],
+  // ASUMSI: nama klaim scope `satker` belum terkonfirmasi (discovery hanya menyebut scope-nya).
+  satker: ['satker'],
 };
 
-const USERINFO_ONLY = new Set(['nip', 'roles', 'uuid', 'jabatan']);
+const USERINFO_ONLY = new Set(['nip', 'roles', 'uuid', 'jabatan', 'satker']);
+
+// Scope tanpa klaim yang ada di discovery KemluID (scope API milik layanan lain).
+const PLAIN_SCOPES = ['addressbook:read'];
 
 /** Klaim akun untuk satu pemakaian (`id_token` | `userinfo`) dan scope yang diberikan. */
 export function accountClaims(user, use, scope) {
@@ -54,6 +60,7 @@ export function accountClaims(user, use, scope) {
     if (scopes.has('uuid') && user.uuid) out.uuid = user.uuid;
     // Per 2026-10-13 KemluID tidak mengirim jabatan: hanya dikirim bila diisi di users.json.
     if (scopes.has('jabatan') && user.jabatan) out.jabatan = user.jabatan;
+    if (scopes.has('satker') && user.satker) out.satker = user.satker;
   }
   for (const k of Object.keys(out)) {
     if (use === 'id_token' && USERINFO_ONLY.has(k)) delete out[k];
@@ -75,7 +82,7 @@ export function providerConfig({ loadClients }) {
     // Scope resource (api:<modul>) wajib dikenal provider agar boleh tercantum di metadata client.
     // Dibaca saat start: menambah `resource_scope` baru di clients.json butuh restart (client
     // lain tetap hot-reload seperti biasa).
-    scopes: ['openid', 'offline_access', ...new Set(resourceServers(loadClients).map((s) => s.scope))],
+    scopes: ['openid', 'offline_access', ...PLAIN_SCOPES, ...new Set(resourceServers(loadClients).map((s) => s.scope))],
     // Klaim id_token diatur accountClaims (standar saja), bukan oleh conform mode.
     conformIdTokenClaims: false,
     pkce: { required: () => true },
@@ -85,8 +92,8 @@ export function providerConfig({ loadClients }) {
       token: '/connect/token',
       userinfo: '/connect/userinfo',
       introspection: '/connect/introspect',
-      revocation: '/connect/revoke',
-      jwks: '/.well-known/jwks',
+      revocation: '/connect/revocation',
+      jwks: '/.well-known/jwks.json',
     },
     features: {
       devInteractions: { enabled: false },
