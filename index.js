@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -7,16 +7,40 @@ import Router from '@koa/router';
 import { koaBody } from 'koa-body';
 import Provider from 'oidc-provider';
 
+import * as kemluid from './profiles/kemluid.js';
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PORT = process.env.PORT || 9876;
 const ISSUER = process.env.ISSUER || `http://localhost:${PORT}`;
 
+// Profil perilaku IdP. "stargan" (bawaan) = perilaku asli LiloIDC. "kemluid" = meniru KemluID
+// (OpenIddict) untuk tte-web — lihat profiles/kemluid.js.
+const PROFILE = process.env.LILO_PROFILE || 'stargan';
+if (!['stargan', 'kemluid'].includes(PROFILE)) {
+  throw new Error(`LILO_PROFILE tidak dikenal: ${PROFILE} (pilihan: stargan, kemluid)`);
+}
+const DATA_DIR = PROFILE === 'kemluid' ? join(__dirname, 'profiles', 'kemluid') : __dirname;
+const USERS_FILE = process.env.USERS_FILE || join(DATA_DIR, 'users.json');
+const CLIENTS_FILE = process.env.CLIENTS_FILE || defaultClientsFile();
+
+// Profil kemluid: clients.json tidak dilacak git (bisa memuat secret lokal); bila belum dibuat,
+// pakai templat clients.example.json.
+function defaultClientsFile() {
+  const file = join(DATA_DIR, 'clients.json');
+  const example = join(DATA_DIR, 'clients.example.json');
+  if (PROFILE === 'kemluid' && !existsSync(file) && existsSync(example)) {
+    console.warn(`  ${file} belum ada; memakai ${example}. Salin templat itu untuk menyesuaikan client.`);
+    return example;
+  }
+  return file;
+}
+
 function loadUsers() {
-  return JSON.parse(readFileSync(join(__dirname, 'users.json'), 'utf8'));
+  return JSON.parse(readFileSync(USERS_FILE, 'utf8'));
 }
 
 function loadClients() {
-  return JSON.parse(readFileSync(join(__dirname, 'clients.json'), 'utf8'));
+  return JSON.parse(readFileSync(CLIENTS_FILE, 'utf8'));
 }
 
 function formatClient(c) {
@@ -97,6 +121,16 @@ function adapterFactory(modelName) {
 function findAccount(ctx, id) {
   const user = loadUsers().find((u) => u.username === id);
   if (!user) return undefined;
+  if (PROFILE === 'kemluid') {
+    return {
+      accountId: id,
+      async claims(use, scope) {
+        const claims = kemluid.accountClaims(user, use, scope);
+        console.log(`[liloidc:kemluid] claims(use=${use}, scope="${scope}") =>`, JSON.stringify(claims));
+        return claims;
+      },
+    };
+  }
   return {
     accountId: id,
     async claims(use, scope) {
@@ -120,7 +154,7 @@ function findAccount(ctx, id) {
 }
 
 // Provider config
-const provider = new Provider(ISSUER, {
+const baseConfig = {
   // Trust nginx reverse proxy (X-Forwarded-* headers)
   ...(process.env.NODE_ENV === 'production' && { proxy: true }),
 
@@ -157,10 +191,25 @@ const provider = new Provider(ISSUER, {
     RefreshToken: 86400,
     Session: 86400,
   },
-});
+};
+
+function profileConfig() {
+  if (PROFILE !== 'kemluid') return baseConfig;
+  const over = kemluid.providerConfig({ loadClients });
+  return { ...baseConfig, ...over, features: { ...baseConfig.features, ...over.features } };
+}
+
+const provider = new Provider(ISSUER, profileConfig());
 
 // Mount interaction routes directly on the provider (which IS a Koa app)
 const router = new Router();
+
+// Profil kemluid: userinfo ala OpenIddict (menerima token ber-audience resource), dipasang
+// sebelum rute bawaan oidc-provider di path yang sama.
+if (PROFILE === 'kemluid') {
+  kemluid.mountOfflineAccessShim(provider);
+  kemluid.mountUserinfo(router, provider, findAccount);
+}
 
 // Login page
 router.get('/interaction/:uid', async (ctx) => {
@@ -235,7 +284,7 @@ provider.use(router.allowedMethods());
 // Start
 const server = createServer(provider.callback());
 server.listen(PORT, () => {
-  console.log(`\n  LiloIDC running on ${ISSUER}\n`);
+  console.log(`\n  LiloIDC running on ${ISSUER} (profile: ${PROFILE})\n`);
   console.log(`  Discovery: ${ISSUER}/.well-known/openid-configuration`);
   console.log(`  Users:     ${loadUsers().map((u) => u.username).join(', ')}`);
   console.log(`  Clients:   ${loadClients().map((c) => c.client_id).join(', ')}\n`);

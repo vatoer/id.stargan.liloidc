@@ -7,3 +7,4 @@ node_modules
 *.md
 *.log
 ecosystem.config.cjs
+profiles/kemluid/clients.json
