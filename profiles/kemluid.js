@@ -13,10 +13,15 @@
 //   diintrospeksi (RFC 7662) oleh backend itu dan TETAP bisa dipakai di userinfo — seperti
 //   OpenIddict, tidak seperti oidc-provider bawaan yang menolak token ber-audience di userinfo;
 // - introspeksi hanya untuk client presenter/audience token (perilaku OpenIddict);
-// - W1/W3: client publik SuperApp + offline_access, refresh token 30 hari.
+// - W1/W3: client publik SuperApp + offline_access, refresh token 30 hari;
+// - ADR-005 SuperApp: satu login dengan beberapa scope API, lalu access token per backend lewat
+//   refresh dengan subset scope;
+// - W2b: client_credentials untuk aplikasi sumber (`api:sapp.integrations`).
 //
 // Backend modul didefinisikan di clients.json: client dengan `resource_scope` (mis. tte-web
 // dengan "api:tte") sekaligus menjadi resource server untuk scope itu, audience = client_id-nya.
+// `resource_scope` boleh berisi beberapa scope dipisah spasi (mis. backend Go SuperApp:
+// "api:sapp api:sapp.integrations").
 
 import { errors } from 'oidc-provider';
 
@@ -68,12 +73,16 @@ export function accountClaims(user, use, scope) {
   return out;
 }
 
-/** Resource server dari clients.json: client ber-`resource_scope`. */
+const split = (v) => String(v || '').split(' ').filter(Boolean);
+
+/** Resource server dari clients.json: client ber-`resource_scope` (satu atau beberapa scope). */
 function resourceServers(loadClients) {
   return loadClients()
-    .filter((c) => typeof c.resource_scope === 'string' && c.resource_scope)
-    .map((c) => ({ indicator: `${RESOURCE_PREFIX}${c.client_id}`, scope: c.resource_scope, audience: c.client_id }));
+    .filter((c) => split(c.resource_scope).length > 0)
+    .map((c) => ({ indicator: `${RESOURCE_PREFIX}${c.client_id}`, scopes: split(c.resource_scope), audience: c.client_id }));
 }
+
+const servesAny = (server, scopes) => server.scopes.some((x) => scopes.has(x));
 
 /** Override konfigurasi oidc-provider untuk profil ini. */
 export function providerConfig({ loadClients }) {
@@ -82,7 +91,7 @@ export function providerConfig({ loadClients }) {
     // Scope resource (api:<modul>) wajib dikenal provider agar boleh tercantum di metadata client.
     // Dibaca saat start: menambah `resource_scope` baru di clients.json butuh restart (client
     // lain tetap hot-reload seperti biasa).
-    scopes: ['openid', 'offline_access', ...PLAIN_SCOPES, ...new Set(resourceServers(loadClients).map((s) => s.scope))],
+    scopes: ['openid', 'offline_access', ...PLAIN_SCOPES, ...new Set(resourceServers(loadClients).flatMap((s) => s.scopes))],
     // Klaim id_token diatur accountClaims (standar saja), bukan oleh conform mode.
     conformIdTokenClaims: false,
     pkce: { required: () => true },
@@ -100,6 +109,8 @@ export function providerConfig({ loadClients }) {
       // KemluID tidak mengiklankan end_session_endpoint (tte-web docs/oidc-kemluid.md § Logout).
       rpInitiatedLogout: { enabled: false },
       revocation: { enabled: true },
+      // KemluID mengiklankan client_credentials (W2b: aplikasi sumber → backend Go SuperApp).
+      clientCredentials: { enabled: true },
       introspection: {
         enabled: true,
         // OpenIddict: hanya client presenter atau yang tercantum di audience token.
@@ -120,11 +131,11 @@ export function providerConfig({ loadClients }) {
           if (oneOf) {
             // Refresh/kode dengan subset scope (ADR-005 SuperApp: token per backend): pilih resource
             // yang scope-nya diminta. Tanpa scope API sama sekali → token userinfo biasa.
-            if (ctx.oidc.params?.scope && !servers.some((s) => requested.has(s.scope))) return undefined;
-            const wanted = servers.filter((s) => requested.has(s.scope)).map((s) => s.indicator);
+            if (ctx.oidc.params?.scope && !servers.some((s) => servesAny(s, requested))) return undefined;
+            const wanted = servers.filter((s) => servesAny(s, requested)).map((s) => s.indicator);
             return oneOf.find((r) => wanted.includes(r)) ?? oneOf[0];
           }
-          const hits = servers.filter((s) => requested.has(s.scope)).map((s) => s.indicator);
+          const hits = servers.filter((s) => servesAny(s, requested)).map((s) => s.indicator);
           if (hits.length === 0) return undefined;
           return hits.length === 1 ? hits[0] : hits;
         },
@@ -136,13 +147,16 @@ export function providerConfig({ loadClients }) {
           const requested = ctx.oidc.params?.scope;
           if (!requested) return true;
           const scopes = new Set(String(requested).split(' '));
-          return resourceServers(loadClients).some((s) => scopes.has(s.scope));
+          return resourceServers(loadClients).some((s) => servesAny(s, scopes));
         },
         async getResourceServerInfo(ctx, indicator, client) {
           const server = resourceServers(loadClients).find((s) => s.indicator === indicator);
           if (!server) throw new errors.InvalidTarget();
-          if (!String(client.scope || '').split(' ').includes(server.scope)) throw new errors.InvalidTarget();
-          return { scope: server.scope, audience: server.audience, accessTokenTTL: 3600, accessTokenFormat: 'opaque' };
+          // Hanya scope resource yang juga diizinkan untuk client peminta.
+          const allowed = new Set(split(client.scope));
+          const scope = server.scopes.filter((x) => allowed.has(x));
+          if (scope.length === 0) throw new errors.InvalidTarget();
+          return { scope: scope.join(' '), audience: server.audience, accessTokenTTL: 3600, accessTokenFormat: 'opaque' };
         },
       },
     },

@@ -12,12 +12,33 @@
     "resource_scope": "api:tte"
   },
   {
-    "client_id": "superapp",
+    "client_id": "sapp",
     "application_type": "native",
     "token_endpoint_auth_method": "none",
-    "redirect_uris": ["https://app.example/tte/callback", "id.example.superapp:/callback", "http://127.0.0.1:8765/callback"],
+    "redirect_uris": [
+      "https://app.example.com/auth/callback",
+      "com.example.sapp:/oauth2redirect",
+      "http://127.0.0.1:8765/callback"
+    ],
     "grant_types": ["authorization_code", "refresh_token"],
     "response_types": ["code"],
-    "scope": "openid profile email nip roles uuid satker offline_access api:tte"
+    "scope": "openid profile email nip roles uuid satker offline_access api:sapp api:tte"
+  },
+  {
+    "client_id": "sapp-api",
+    "client_secret": "sapp-api-secret-lokal",
+    "redirect_uris": [],
+    "grant_types": [],
+    "response_types": [],
+    "scope": "openid",
+    "resource_scope": "api:sapp api:sapp.integrations"
+  },
+  {
+    "client_id": "sumber-contoh",
+    "client_secret": "sumber-contoh-secret-lokal",
+    "redirect_uris": [],
+    "grant_types": ["client_credentials"],
+    "response_types": [],
+    "scope": "api:sapp.integrations"
   }
 ]
