@@ -111,6 +111,9 @@ export function providerConfig({ loadClients }) {
           const servers = resourceServers(loadClients);
           const requested = new Set(String(ctx.oidc.params?.scope || '').split(' '));
           if (oneOf) {
+            // Refresh/kode dengan subset scope (ADR-005 SuperApp: token per backend): pilih resource
+            // yang scope-nya diminta. Tanpa scope API sama sekali → token userinfo biasa.
+            if (ctx.oidc.params?.scope && !servers.some((s) => requested.has(s.scope))) return undefined;
             const wanted = servers.filter((s) => requested.has(s.scope)).map((s) => s.indicator);
             return oneOf.find((r) => wanted.includes(r)) ?? oneOf[0];
           }
@@ -120,8 +123,13 @@ export function providerConfig({ loadClients }) {
         },
         // Token untuk resource diterbitkan walau scope memuat `openid` (W2: SuperApp memakai satu
         // token ber-aud tte-web untuk introspeksi DAN userinfo).
-        async useGrantedResource() {
-          return true;
+        // Kecuali permintaan menyebut scope eksplisit tanpa scope API (mis. refresh dengan
+        // `scope=openid profile`): itu permintaan token userinfo.
+        async useGrantedResource(ctx) {
+          const requested = ctx.oidc.params?.scope;
+          if (!requested) return true;
+          const scopes = new Set(String(requested).split(' '));
+          return resourceServers(loadClients).some((s) => scopes.has(s.scope));
         },
         async getResourceServerInfo(ctx, indicator, client) {
           const server = resourceServers(loadClients).find((s) => s.indicator === indicator);
