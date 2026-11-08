@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -21,7 +21,19 @@ if (!['stargan', 'kemluid'].includes(PROFILE)) {
 }
 const DATA_DIR = PROFILE === 'kemluid' ? join(__dirname, 'profiles', 'kemluid') : __dirname;
 const USERS_FILE = process.env.USERS_FILE || join(DATA_DIR, 'users.json');
-const CLIENTS_FILE = process.env.CLIENTS_FILE || join(DATA_DIR, 'clients.json');
+const CLIENTS_FILE = process.env.CLIENTS_FILE || defaultClientsFile();
+
+// Profil kemluid: clients.json tidak dilacak git (bisa memuat secret lokal); bila belum dibuat,
+// pakai templat clients.example.json.
+function defaultClientsFile() {
+  const file = join(DATA_DIR, 'clients.json');
+  const example = join(DATA_DIR, 'clients.example.json');
+  if (PROFILE === 'kemluid' && !existsSync(file) && existsSync(example)) {
+    console.warn(`  ${file} belum ada; memakai ${example}. Salin templat itu untuk menyesuaikan client.`);
+    return example;
+  }
+  return file;
+}
 
 function loadUsers() {
   return JSON.parse(readFileSync(USERS_FILE, 'utf8'));

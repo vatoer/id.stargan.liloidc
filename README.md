@@ -34,7 +34,7 @@ docker compose --profile kemluid up -d liloidc-kemluid          # profil kemluid
 | `ISSUER` | `http://localhost:<PORT>` | URL issuer (yang dilihat client) |
 | `LILO_PROFILE` | `stargan` | perilaku IdP: `stargan` atau `kemluid` (lihat di bawah) |
 | `USERS_FILE` | `users.json` milik profil | berkas pengguna |
-| `CLIENTS_FILE` | `clients.json` milik profil | berkas client |
+| `CLIENTS_FILE` | `clients.json` milik profil (kemluid: jatuh ke `clients.example.json` bila belum ada) | berkas client |
 | `NODE_ENV` | — | `production` = percaya header `X-Forwarded-*` dari reverse proxy |
 
 `users.json` dan `clients.json` dibaca ulang pada setiap request, jadi perubahan berlaku tanpa
@@ -101,7 +101,7 @@ LILO_PROFILE=kemluid PORT=9877 npm start
 ```
 index.js              server, adapter, login/logout UI
 profiles/kemluid.js   perilaku profil kemluid
-profiles/kemluid/     users.json, clients.json, README.md profil kemluid
+profiles/kemluid/     users.json, clients.example.json (salin ke clients.json, tidak dilacak git), README.md
 users.json            pengguna profil bawaan
 clients.json          client profil bawaan
 ```

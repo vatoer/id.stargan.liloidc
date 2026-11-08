@@ -47,5 +47,17 @@
     "uuid": "d4b6e8f0-2a1c-4e3d-8f7a-6b5c4d3e2f44",
     "jabatan": "Kepala Subbagian Uji",
     "satker": "Satuan Kerja Uji B"
+  },
+  {
+    "username": "dewi.lestari",
+    "password": "dewi.lestari",
+    "email": "dewi.lestari@idp.test",
+    "name": "Dewi Lestari",
+    "nip": "199406232019032002",
+    "roles": [
+      "Pegawai"
+    ],
+    "uuid": "5e7a9c1b-8d3f-4a62-b0e4-1c9f7d2a6b55",
+    "satker": "Satuan Kerja Uji A"
   }
 ]

@@ -1,8 +1,11 @@
 [
   {
-    "client_id": "tte-web",
-    "client_secret": "tte-web-secret",
-    "redirect_uris": ["http://localhost:3000/api/auth/callback/kemluid"],
+    "client_id": "ttev2",
+    "client_secret": "ttev2-secret-lokal",
+    "redirect_uris": [
+      "https://tte.example.com/api/auth/callback/kemluid",
+      "http://localhost:3000/api/auth/callback/kemluid"
+    ],
     "grant_types": ["authorization_code", "refresh_token"],
     "response_types": ["code"],
     "scope": "openid profile email nip roles uuid jabatan satker offline_access",

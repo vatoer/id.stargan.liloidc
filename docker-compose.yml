@@ -23,5 +23,5 @@ services:
       LILO_PROFILE: kemluid
     restart: unless-stopped
     volumes:
-      - ./profiles/kemluid/clients.json:/app/profiles/kemluid/clients.json:ro
-      - ./profiles/kemluid/users.json:/app/profiles/kemluid/users.json:ro
+      # Seluruh folder profil: clients.json lokal dipakai bila ada, bila tidak clients.example.json.
+      - ./profiles/kemluid:/app/profiles/kemluid:ro
