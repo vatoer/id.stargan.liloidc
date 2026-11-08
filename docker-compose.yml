@@ -8,3 +8,20 @@ services:
     volumes:
       - ./clients.json:/app/clients.json:ro
       - ./users.json:/app/users.json:ro
+
+  # Profil kemluid: meniru KemluID (OpenIddict) untuk uji lokal tte-web. Opt-in:
+  #   docker compose --profile kemluid up -d liloidc-kemluid
+  # Dokumentasi: profiles/kemluid/README.md
+  liloidc-kemluid:
+    build: .
+    profiles: [kemluid]
+    ports:
+      - "9877:9877"
+    environment:
+      PORT: 9877
+      ISSUER: http://localhost:9877
+      LILO_PROFILE: kemluid
+    restart: unless-stopped
+    volumes:
+      - ./profiles/kemluid/clients.json:/app/profiles/kemluid/clients.json:ro
+      - ./profiles/kemluid/users.json:/app/profiles/kemluid/users.json:ro

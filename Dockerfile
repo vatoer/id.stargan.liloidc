@@ -6,6 +6,7 @@ COPY package.json package-lock.json ./
 RUN npm ci --omit=dev
 
 COPY index.js clients.json users.json ./
+COPY profiles ./profiles
 
 EXPOSE 9876
 
