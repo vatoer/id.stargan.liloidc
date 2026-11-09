@@ -6,9 +6,9 @@
       "https://tte.example.com/api/auth/callback/kemluid",
       "http://localhost:3000/api/auth/callback/kemluid"
     ],
-    "grant_types": ["authorization_code", "refresh_token"],
+    "grant_types": ["authorization_code", "refresh_token", "client_credentials"],
     "response_types": ["code"],
-    "scope": "openid profile email nip roles uuid jabatan satker offline_access",
+    "scope": "openid profile email nip roles uuid jabatan satker offline_access api:sapp.integrations",
     "resource_scope": "api:tte"
   },
   {
