@@ -1,0 +1,36 @@
+# ============================================================================
+# liloidc (pengganti sementara KemluID, profil kemluid) — site file edge-caddy
+# ============================================================================
+# Di server: ~/edge/sites-enabled/liloidc.caddy, lalu:
+#   docker exec edge-caddy caddy reload --config /etc/caddy/Caddyfile
+# DNS: A liloidc.intihexa.id → 76.13.19.72 (DNS-only).
+# BUKAN IdP produksi: hanya untuk staging/uji SuperApp dan tte-web.
+# ============================================================================
+
+liloidc.intihexa.id {
+	encode zstd gzip
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "no-referrer"
+		X-Robots-Tag "noindex, nofollow"
+		-Server
+	}
+
+	reverse_proxy liloidc-kemluid:9877 {
+		header_up X-Real-IP {remote_host}
+	}
+
+	request_body {
+		max_size 64KB
+	}
+
+	log {
+		output file /data/access-liloidc.log {
+			roll_size 10mb
+			roll_keep 7
+		}
+		format json
+	}
+}

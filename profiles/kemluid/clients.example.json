@@ -6,8 +6,14 @@
       "https://tte.example.com/api/auth/callback/kemluid",
       "http://localhost:3000/api/auth/callback/kemluid"
     ],
-    "grant_types": ["authorization_code", "refresh_token", "client_credentials"],
-    "response_types": ["code"],
+    "grant_types": [
+      "authorization_code",
+      "refresh_token",
+      "client_credentials"
+    ],
+    "response_types": [
+      "code"
+    ],
     "scope": "openid profile email nip roles uuid jabatan satker offline_access api:sapp.integrations",
     "resource_scope": "api:tte"
   },
@@ -18,10 +24,16 @@
     "redirect_uris": [
       "https://app.example.com/auth/callback",
       "com.example.sapp:/oauth2redirect",
+      "app.sapp.mobile:/oauth2redirect",
       "http://127.0.0.1:8765/callback"
     ],
-    "grant_types": ["authorization_code", "refresh_token"],
-    "response_types": ["code"],
+    "grant_types": [
+      "authorization_code",
+      "refresh_token"
+    ],
+    "response_types": [
+      "code"
+    ],
     "scope": "openid profile email nip roles uuid satker offline_access api:sapp api:tte"
   },
   {
@@ -37,7 +49,9 @@
     "client_id": "sumber-contoh",
     "client_secret": "sumber-contoh-secret-lokal",
     "redirect_uris": [],
-    "grant_types": ["client_credentials"],
+    "grant_types": [
+      "client_credentials"
+    ],
     "response_types": [],
     "scope": "api:sapp.integrations"
   }

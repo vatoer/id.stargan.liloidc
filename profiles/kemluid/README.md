@@ -72,10 +72,18 @@ produksi ke `clients.json` maupun `clients.example.json`.
 | `belum.verifikasi` | `signer2@tte.test` | `email_verified: false` → tte-web menolak penautan (`account_not_linked`) |
 | `budi.santoso` | `budi.santoso@idp.test` | klaim `jabatan` dan beberapa `roles` |
 | `dewi.lestari` | `dewi.lestari@idp.test` | akun baru cadangan bila `rina.pratiwi` sudah pernah diprovisikan di DB lokal |
+| `sari.wulandari` | `sari.wulandari@idp.test` | persona staf administrasi SuperApp (`Pegawai`) |
+| `andi.kurniawan` | `andi.kurniawan@idp.test` | persona kepala bagian/penyetuju (`Pegawai`, `Pejabat`, `jabatan`) |
+| `hendra.wijaya` | `hendra.wijaya@idp.test` | persona pejabat eselon penandatangan (`Pegawai`, `Pejabat`, `Penandatangan`) |
+| `admin.sapp` | `admin.sapp@idp.test` | tim SuperApp (`Admin SuperApp`). Klaim ini **tidak** memberi hak admin di SuperApp (hak admin hanya dari `admin_grants`, docs SuperApp 04) |
+| `ppnpn.tanpa.nip` | `ppnpn.tanpa.nip@idp.test` | pegawai tanpa `nip` (`PPNPN`): uji pemetaan sub ↔ NIP di `sapp-api` saat klaim tidak ada |
+
+Nilai `roles` (`Pegawai`, `Pejabat`, `Penandatangan`, `Admin SuperApp`, `PPNPN`) adalah **contoh**:
+bentuk dan nilai `roles` KemluID asli belum terkonfirmasi.
 
 `clients.example.json` (templat; salinan lokal `clients.json` tidak dilacak git): `ttev2` (client tte-web; confidential, redirect contoh `https://tte.example.com/api/auth/callback/kemluid`
 dan dev `http://localhost:3000/api/auth/callback/kemluid`, `resource_scope: api:tte`), `sapp` (publik; redirect App Link
-`https://app.example.com/auth/callback`, skema iOS `com.example.sapp:/oauth2redirect`, dan loopback
+`https://app.example.com/auth/callback`, skema iOS `com.example.sapp:/oauth2redirect`, skema `app.sapp.mobile:/oauth2redirect` (applicationId kerangka `sapp-mobile`), dan loopback
 `http://127.0.0.1:8765/callback` untuk alat uji seperti tte-web `scripts/kemluid-probe.mjs`), `sapp-api`
 (resource server backend Go, secret `sapp-api-secret-lokal`, hanya untuk introspeksi), dan `sumber-contoh`
 (aplikasi sumber, `client_credentials`, secret `sumber-contoh-secret-lokal`).
