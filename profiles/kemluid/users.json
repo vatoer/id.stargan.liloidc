@@ -59,5 +59,70 @@
     ],
     "uuid": "5e7a9c1b-8d3f-4a62-b0e4-1c9f7d2a6b55",
     "satker": "Satuan Kerja Uji A"
+  },
+  {
+    "username": "sari.wulandari",
+    "password": "sari.wulandari",
+    "email": "sari.wulandari@idp.test",
+    "name": "Sari Wulandari",
+    "nip": "199507142020122003",
+    "roles": [
+      "Pegawai"
+    ],
+    "uuid": "a1e3c5d7-0b2f-4a6c-8e9d-1f3b5d7a9c55",
+    "satker": "Direktorat Uji A"
+  },
+  {
+    "username": "andi.kurniawan",
+    "password": "andi.kurniawan",
+    "email": "andi.kurniawan@idp.test",
+    "name": "Andi Kurniawan",
+    "nip": "198203172006041001",
+    "roles": [
+      "Pegawai",
+      "Pejabat"
+    ],
+    "uuid": "b2f4d6e8-1c3a-4b7d-9f0e-2a4c6e8b0d66",
+    "jabatan": "Kepala Bagian Uji",
+    "satker": "Direktorat Uji A"
+  },
+  {
+    "username": "hendra.wijaya",
+    "password": "hendra.wijaya",
+    "email": "hendra.wijaya@idp.test",
+    "name": "Hendra Wijaya",
+    "nip": "197409251998031002",
+    "roles": [
+      "Pegawai",
+      "Pejabat",
+      "Penandatangan"
+    ],
+    "uuid": "c3a5e7f9-2d4b-4c8e-a01f-3b5d7f9c1e77",
+    "jabatan": "Direktur Uji",
+    "satker": "Direktorat Uji A"
+  },
+  {
+    "username": "admin.sapp",
+    "password": "admin.sapp",
+    "email": "admin.sapp@idp.test",
+    "name": "Admin SuperApp Uji",
+    "nip": "199011112015031004",
+    "roles": [
+      "Pegawai",
+      "Admin SuperApp"
+    ],
+    "uuid": "d4b6f8a0-3e5c-4d9f-b12a-4c6e8a0d2f88",
+    "satker": "Pusat Data Uji"
+  },
+  {
+    "username": "ppnpn.tanpa.nip",
+    "password": "ppnpn.tanpa.nip",
+    "email": "ppnpn.tanpa.nip@idp.test",
+    "name": "PPNPN Tanpa NIP",
+    "roles": [
+      "PPNPN"
+    ],
+    "uuid": "e5c7a9b1-4f6d-4eaf-c23b-5d7f9b1e3a99",
+    "satker": "Direktorat Uji A"
   }
 ]

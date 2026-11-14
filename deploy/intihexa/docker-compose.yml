@@ -1,0 +1,38 @@
+# LiloIDC profil kemluid di vpskvm4 — pengganti sementara KemluID untuk staging SuperApp/tte-web.
+# Di server: ~/liloidc (kode) + ~/liloidc/data (users/clients/jwks, TIDAK dari repo).
+# Akses publik lewat edge-caddy bersama (~/edge/sites-enabled/liloidc.caddy), tanpa port host.
+services:
+  liloidc:
+    build:
+      context: .
+    image: liloidc:local
+    env_file: .env
+    environment:
+      LILO_PROFILE: kemluid
+      PORT: "9877"
+      NODE_ENV: production
+      USERS_FILE: /data/users.json
+      CLIENTS_FILE: /data/clients.json
+      JWKS_FILE: /data/jwks.json
+    user: "1000:1000"
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    mem_limit: 256m
+    volumes:
+      - ./data:/data
+    networks:
+      edge:
+        aliases: [liloidc-kemluid]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:9877/.well-known/openid-configuration"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+networks:
+  edge:
+    name: edge
+    external: true

@@ -1,4 +1,5 @@
-import { existsSync, readFileSync } from 'node:fs';
+import { generateKeyPairSync, randomUUID } from 'node:crypto';
+import { chmodSync, existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -33,6 +34,33 @@ function defaultClientsFile() {
     return example;
   }
   return file;
+}
+
+// Kunci tanda tangan. Tanpa JWKS_FILE, oidc-provider memakai DEV_KEYSTORE yang ikut terbit di
+// paket npm (siapa pun bisa memalsukan id_token) — hanya pantas untuk localhost. Deployment yang
+// bisa dijangkau orang lain WAJIB mengisi JWKS_FILE: berkas dibuat sekali (RS256, mode 600) dan
+// dipakai ulang sehingga token tetap sah setelah restart.
+function loadJwks() {
+  const file = process.env.JWKS_FILE;
+  if (!file) return undefined;
+  if (!existsSync(file)) {
+    const { privateKey } = generateKeyPairSync('rsa', { modulusLength: 2048 });
+    const jwk = { ...privateKey.export({ format: 'jwk' }), kid: randomUUID(), use: 'sig', alg: 'RS256' };
+    writeFileSync(file, JSON.stringify({ keys: [jwk] }), { mode: 0o600 });
+    try { chmodSync(file, 0o600); } catch { /* Windows */ }
+    console.log(`  JWKS baru dibuat: ${file}`);
+  }
+  return JSON.parse(readFileSync(file, 'utf8'));
+}
+
+// Kunci tanda tangan cookie. COOKIE_KEYS (dipisah koma) wajib di deployment non-lokal.
+function cookieKeys() {
+  const keys = (process.env.COOKIE_KEYS || '').split(',').map((k) => k.trim()).filter(Boolean);
+  if (keys.length) return keys;
+  if (process.env.NODE_ENV === 'production') {
+    console.warn('  COOKIE_KEYS kosong: memakai kunci cookie dev yang tercantum di repo.');
+  }
+  return ['liloidc-secret-key-dev-only'];
 }
 
 function loadUsers() {
@@ -155,8 +183,6 @@ function findAccount(ctx, id) {
 
 // Provider config
 const baseConfig = {
-  // Trust nginx reverse proxy (X-Forwarded-* headers)
-  ...(process.env.NODE_ENV === 'production' && { proxy: true }),
 
   adapter: adapterFactory,
   findAccount,
@@ -182,7 +208,7 @@ const baseConfig = {
     required: () => false,
   },
   cookies: {
-    keys: ['liloidc-secret-key-dev-only'],
+    keys: cookieKeys(),
   },
   ttl: {
     AccessToken: 3600,
@@ -199,7 +225,15 @@ function profileConfig() {
   return { ...baseConfig, ...over, features: { ...baseConfig.features, ...over.features } };
 }
 
-const provider = new Provider(ISSUER, profileConfig());
+const jwks = loadJwks();
+if (!jwks && process.env.NODE_ENV === 'production') {
+  console.warn('  JWKS_FILE kosong: memakai DEV_KEYSTORE publik oidc-provider. Jangan dipakai di internet.');
+}
+const provider = new Provider(ISSUER, { ...profileConfig(), ...(jwks && { jwks }) });
+// Percayai X-Forwarded-* dari reverse proxy (nginx/Caddy). oidc-provider v9 tidak lagi membaca
+// opsi konfigurasi `proxy`; yang berlaku adalah properti Koa app ini. Tanpa ini endpoint di
+// discovery diiklankan sebagai http:// walau issuer https://.
+if (process.env.NODE_ENV === 'production') provider.proxy = true;
 
 // Mount interaction routes directly on the provider (which IS a Koa app)
 const router = new Router();

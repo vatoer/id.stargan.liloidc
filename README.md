@@ -36,6 +36,8 @@ docker compose --profile kemluid up -d liloidc-kemluid          # profil kemluid
 | `USERS_FILE` | `users.json` milik profil | berkas pengguna |
 | `CLIENTS_FILE` | `clients.json` milik profil (kemluid: jatuh ke `clients.example.json` bila belum ada) | berkas client |
 | `NODE_ENV` | — | `production` = percaya header `X-Forwarded-*` dari reverse proxy |
+| `JWKS_FILE` | — | berkas kunci tanda tangan (dibuat sekali bila belum ada, mode 600). **Wajib** di deployment yang bisa dijangkau orang lain: tanpanya oidc-provider memakai DEV_KEYSTORE yang terbit di paket npm, sehingga id_token bisa dipalsukan |
+| `COOKIE_KEYS` | kunci dev di repo | kunci tanda tangan cookie, dipisah koma. Wajib di deployment non-lokal |
 
 `users.json` dan `clients.json` dibaca ulang pada setiap request, jadi perubahan berlaku tanpa
 restart.
@@ -107,6 +109,9 @@ clients.json          client profil bawaan
 ```
 
 ## Deploy
+
+Profil `kemluid` untuk staging SuperApp/tte-web berjalan di `liloidc.intihexa.id`: lihat
+[`deploy/intihexa/README.md`](deploy/intihexa/README.md).
 
 Push ke `main` men-deploy otomatis ke `demoid.stargan.id` (GitHub Actions → rsync → PM2) dengan
 profil bawaan. Rinciannya di [`DEPLOY.md`](DEPLOY.md); pemulihan PM2 setelah reboot di
